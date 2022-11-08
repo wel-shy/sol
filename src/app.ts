@@ -1,4 +1,4 @@
-import * as dotenv from "dotenv"; // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+import * as dotenv from "dotenv";
 import {
   authenticateToGateway,
   createClient,
@@ -9,11 +9,15 @@ import { fadeLight, rgbToHex } from "./gateway/lights";
 
 dotenv.config();
 
-export const app = new Promise<void>(async (resolve, reject) => {
+export const app = async () => {
+  const [, , lightName] = process.argv;
+  if (!lightName) {
+    throw new Error("Please provide a light name");
+  }
+
   const securityCode = process.env.TRADFRI_SECURITY_CODE;
   if (!securityCode) {
-    reject("No security code provided");
-    return;
+    throw new Error("No security code provided");
   }
 
   const result = await getGateway();
@@ -26,24 +30,16 @@ export const app = new Promise<void>(async (resolve, reject) => {
 
   const devices = await getDevices(client);
 
-  const deskLight = getDeviceByName("Desk", devices);
-  const cabinetLights = getDeviceByName("Cabinets", devices);
-  if (!deskLight || !cabinetLights) {
-    throw new Error("No desk light found");
+  const light = getDeviceByName(lightName, devices);
+  if (!light) {
+    throw new Error(`Could not find light with name ${lightName}`);
   }
 
-  await client.operateLight(deskLight, {
-    onOff: true,
-    color: rgbToHex(255, 0, 0),
+  await fadeLight(client, light, [255, 0, 0], [255, 255, 255], {
+    transitions: 10,
   });
-  await client.operateLight(cabinetLights, {
-    onOff: true,
-    color: rgbToHex(0, 0, 255),
-  });
-
-  await fadeLight(client, deskLight, [255, 0, 0], [0, 0, 255]);
+  await fadeLight(client, light, [255, 255, 255], [0, 0, 255]),
+    { transitions: 10 };
 
   client.destroy();
-
-  resolve();
-});
+};

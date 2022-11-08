@@ -1,3 +1,3 @@
 import { app } from "./app";
 
-app.then().catch(console.error);
+app().then().catch(console.error);

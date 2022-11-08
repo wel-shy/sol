@@ -1,16 +1,5 @@
 import { Accessory, TradfriClient } from "node-tradfri-client";
 
-const sleep = (waitTimeInMs: number) =>
-  new Promise((resolve) => setTimeout(resolve, waitTimeInMs));
-
-export const rgbToHex = (r: number, g: number, b: number) =>
-  [r, g, b]
-    .map((x) => {
-      const hex = x.toString(16);
-      return hex.length === 1 ? "0" + hex : hex;
-    })
-    .join("");
-
 const isTarget = (current: number[], target: number[]) =>
   current.join("") === target.join("");
 
@@ -33,9 +22,7 @@ export const fadeLight = async (
   let iteration = 0;
   let currentRgb = [...from];
   while (!isTarget(currentRgb, to) && iteration < 100) {
-    const [r, g, b] = currentRgb.map((value, index) =>
-      updateValue(value, to[index], incrementSteps[index])
-    );
+    const [r, g, b] = getNextRgb(currentRgb, to, incrementSteps);
 
     await client.operateLight(light, {
       onOff: true,
@@ -51,6 +38,15 @@ export const fadeLight = async (
 
   console.log("Fade complete");
 };
+
+const getNextRgb = (
+  current: number[],
+  to: number[],
+  incrementSteps: number[]
+) =>
+  current.map((value, index) =>
+    updateValue(value, to[index], incrementSteps[index])
+  );
 
 const getIncrementValue = (current: number, target: number, step: number) => {
   const distance = Math.abs(current - target);
@@ -74,3 +70,14 @@ const updateValue = (current: number, target: number, step: number) => {
 
   return Math.round(nextValue);
 };
+
+const sleep = (waitTimeInMs: number) =>
+  new Promise((resolve) => setTimeout(resolve, waitTimeInMs));
+
+export const rgbToHex = (r: number, g: number, b: number) =>
+  [r, g, b]
+    .map((x) => {
+      const hex = x.toString(16);
+      return hex.length === 1 ? "0" + hex : hex;
+    })
+    .join("");
