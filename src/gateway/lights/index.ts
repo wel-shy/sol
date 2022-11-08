@@ -3,6 +3,8 @@ import { getSteppedIncrementValue } from "../../utils/math";
 import { sleep } from "../../utils/process";
 import { getNextRgb, isEqual, rgbToHex } from "./rgb";
 
+const MAX_FADE_ITERATIONS = 100;
+
 interface FadeOptions {
   transitions?: number;
   delay?: number;
@@ -21,7 +23,7 @@ export const fadeLight = async (
 
   let iteration = 0;
   let currentRgb = [...from];
-  while (!isEqual(currentRgb, to) && iteration < 100) {
+  while (!isEqual(currentRgb, to) && iteration < MAX_FADE_ITERATIONS) {
     const [r, g, b] = getNextRgb(currentRgb, to, incrementSteps);
 
     await client.operateLight(light, {
