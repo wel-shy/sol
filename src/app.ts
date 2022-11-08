@@ -6,6 +6,7 @@ import {
 } from "./gateway/client";
 import { getDeviceByName, getDevices } from "./gateway/devices";
 import { fadeLight } from "./gateway/lights";
+import { Colors } from "./gateway/lights/rgb";
 
 dotenv.config();
 
@@ -35,10 +36,10 @@ export const app = async () => {
     throw new Error(`Could not find light with name ${lightName}`);
   }
 
-  await fadeLight(client, light, [255, 0, 0], [255, 255, 255], {
+  await fadeLight(client, light, Colors.RED, Colors.WHITE, {
     transitions: 10,
   });
-  await fadeLight(client, light, [255, 255, 255], [0, 0, 255]),
+  await fadeLight(client, light, Colors.WHITE, Colors.BLUE),
     { transitions: 10 };
 
   client.destroy();
