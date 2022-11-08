@@ -5,7 +5,7 @@ import {
   getGateway,
 } from "./gateway/client";
 import { getDeviceByName, getDevices } from "./gateway/devices";
-import { fadeLight, rgbToHex } from "./gateway/lights";
+import { fadeLight } from "./gateway/lights";
 
 dotenv.config();
 
