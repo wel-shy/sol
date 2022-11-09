@@ -5,8 +5,14 @@ import {
   getGateway,
 } from "./gateway/client";
 import { getDeviceByName, getDevices } from "./gateway/devices";
-import { fadeLight, setLightColor } from "./gateway/lights";
-import { getSolarPeriod, getSunPositionTimeMap, SolarRgbMap } from "./sun";
+import { fadeLight } from "./gateway/lights";
+import {
+  getNextSolarPeriod,
+  getSolarPeriod,
+  getSunPositionTimeMap,
+  SolarRgbMap,
+} from "./sun";
+import { sleep } from "./utils/process";
 
 dotenv.config();
 
@@ -16,12 +22,8 @@ export const app = async () => {
     throw new Error("Missing environment variables");
   }
 
-  const timeStamps = getSunPositionTimeMap(
-    new Date(),
-    parseFloat(LAT),
-    parseFloat(LON)
-  );
-  const solarPeriod = getSolarPeriod(new Date(), timeStamps);
+  let isFading = false;
+  let previousSolarPeriod = null;
 
   const [, , lightName] = process.argv;
   if (!lightName) {
@@ -38,16 +40,42 @@ export const app = async () => {
 
   const devices = await getDevices(client);
 
-  const light = getDeviceByName(lightName, devices);
-  if (!light) {
-    throw new Error(`Could not find light with name ${lightName}`);
+  while (true) {
+    const timeStamps = getSunPositionTimeMap(
+      new Date(),
+      parseFloat(LAT),
+      parseFloat(LON)
+    );
+    const solarPeriod = getSolarPeriod(new Date(), timeStamps);
+    const nextSolarPeriod = getNextSolarPeriod(solarPeriod, timeStamps);
+    if (previousSolarPeriod === solarPeriod) {
+      continue;
+    }
+
+    if (isFading) {
+      continue;
+    }
+
+    const light = getDeviceByName(lightName, devices);
+    if (!light) {
+      console.log("light not found");
+      continue;
+    }
+
+    await fadeLight(
+      client,
+      light,
+      SolarRgbMap[solarPeriod],
+      SolarRgbMap[nextSolarPeriod],
+      {
+        transitions: 10,
+        setisFading: (fading) => (isFading = fading),
+      }
+    );
+
+    previousSolarPeriod = solarPeriod;
+
+    await sleep(1000 * 60 * 1);
   }
-
-  await fadeLight(client, light, SolarRgbMap.blueHour, SolarRgbMap.sunrise, {
-    transitions: 10,
-  });
-  await fadeLight(client, light, SolarRgbMap.sunrise, SolarRgbMap.morning),
-    { transitions: 10 };
-
   client.destroy();
 };

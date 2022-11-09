@@ -8,6 +8,7 @@ const MAX_FADE_ITERATIONS = 100;
 interface FadeOptions {
   transitions?: number;
   delay?: number;
+  setisFading?: (isFading: boolean) => void;
 }
 
 export const setLightColor = async (
@@ -29,7 +30,7 @@ export const fadeLight = async (
   light: Accessory,
   from: number[],
   to: number[],
-  { transitions = 20, delay = 1 }: FadeOptions = {}
+  { transitions = 20, delay = 1, setisFading }: FadeOptions = {}
 ) => {
   const incrementSteps = from.map((value, index) =>
     getSteppedIncrementValue(value, to[index], transitions)
@@ -38,6 +39,8 @@ export const fadeLight = async (
   let iteration = 0;
   let currentRgb = [...from];
   while (!isEqual(currentRgb, to) && iteration < MAX_FADE_ITERATIONS) {
+    setisFading?.(true);
+
     const [r, g, b] = getNextRgb(currentRgb, to, incrementSteps);
 
     await client.operateLight(light, {
@@ -51,4 +54,6 @@ export const fadeLight = async (
 
     await sleep(delay * 2 * 1000);
   }
+
+  setisFading?.(false);
 };
