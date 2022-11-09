@@ -1,11 +1,7 @@
 import { incrementInSteps } from "../../utils/math";
 
-export const Colors = {
-  BLUE: [0, 0, 255],
-  RED: [255, 0, 0],
-  GREEN: [0, 255, 0],
-  WHITE: [255, 255, 255],
-};
+const MAX_RGB_VALUE = 255;
+const MIN_RGB_VALUE = 0;
 
 export const rgbToHex = (r: number, g: number, b: number) =>
   [r, g, b]
@@ -23,5 +19,11 @@ export const getNextRgb = (
   incrementSteps: number[]
 ) =>
   current.map((value, index) =>
-    incrementInSteps(value, to[index], incrementSteps[index], 255, 0)
+    incrementInSteps(
+      value,
+      to[index],
+      incrementSteps[index],
+      MAX_RGB_VALUE,
+      MIN_RGB_VALUE
+    )
   );

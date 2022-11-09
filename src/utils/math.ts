@@ -6,7 +6,11 @@ export const incrementInSteps = (
   lowerBound: number
 ) => {
   const nextValue = current + step;
-  if (Math.abs(nextValue - target) < step) {
+  if (current === target || nextValue === target) {
+    return target;
+  }
+
+  if (Math.abs(nextValue - target) <= Math.abs(step)) {
     return target;
   }
 
@@ -28,5 +32,11 @@ export const getSteppedIncrementValue = (
 ) => {
   const distance = Math.abs(current - target);
   const coef = current <= target ? 1 : -1;
-  return Math.ceil(coef * (distance / step));
+  const incrementValue = Math.ceil(coef * (distance / step));
+
+  if (Math.abs(incrementValue) === 0) {
+    return coef;
+  }
+
+  return incrementValue;
 };

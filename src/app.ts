@@ -5,20 +5,27 @@ import {
   getGateway,
 } from "./gateway/client";
 import { getDeviceByName, getDevices } from "./gateway/devices";
-import { fadeLight } from "./gateway/lights";
-import { Colors } from "./gateway/lights/rgb";
+import { fadeLight, setLightColor } from "./gateway/lights";
+import { getSolarPeriod, getSunPositionTimeMap, SolarRgbMap } from "./sun";
 
 dotenv.config();
 
 export const app = async () => {
+  const { LAT, LON, TRADFRI_SECURITY_CODE } = process.env;
+  if (!LAT || !LON || !TRADFRI_SECURITY_CODE) {
+    throw new Error("Missing environment variables");
+  }
+
+  const timeStamps = getSunPositionTimeMap(
+    new Date(),
+    parseFloat(LAT),
+    parseFloat(LON)
+  );
+  const solarPeriod = getSolarPeriod(new Date(), timeStamps);
+
   const [, , lightName] = process.argv;
   if (!lightName) {
     throw new Error("Please provide a light name");
-  }
-
-  const securityCode = process.env.TRADFRI_SECURITY_CODE;
-  if (!securityCode) {
-    throw new Error("No security code provided");
   }
 
   const result = await getGateway();
@@ -27,7 +34,7 @@ export const app = async () => {
   }
 
   const client = await createClient(result);
-  await authenticateToGateway(client, securityCode);
+  await authenticateToGateway(client, TRADFRI_SECURITY_CODE);
 
   const devices = await getDevices(client);
 
@@ -36,10 +43,10 @@ export const app = async () => {
     throw new Error(`Could not find light with name ${lightName}`);
   }
 
-  await fadeLight(client, light, Colors.RED, Colors.WHITE, {
+  await fadeLight(client, light, SolarRgbMap.blueHour, SolarRgbMap.sunrise, {
     transitions: 10,
   });
-  await fadeLight(client, light, Colors.WHITE, Colors.BLUE),
+  await fadeLight(client, light, SolarRgbMap.sunrise, SolarRgbMap.morning),
     { transitions: 10 };
 
   client.destroy();

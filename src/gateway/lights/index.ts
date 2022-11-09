@@ -10,6 +10,20 @@ interface FadeOptions {
   delay?: number;
 }
 
+export const setLightColor = async (
+  client: TradfriClient,
+  light: Accessory,
+  rgb: number[]
+): Promise<void> => {
+  const [r, g, b] = rgb;
+
+  await client.operateLight(light, {
+    onOff: true,
+    color: rgbToHex(r, g, b),
+    transitionTime: 1,
+  });
+};
+
 export const fadeLight = async (
   client: TradfriClient,
   light: Accessory,
@@ -37,6 +51,4 @@ export const fadeLight = async (
 
     await sleep(delay * 2 * 1000);
   }
-
-  console.log("Fade complete");
 };
