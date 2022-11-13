@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 import { getLogger } from "./utils/logger";
-import { createSmartLightHub } from "./SmartLightHub";
+import { createSmartLightHub, SmartLightHubType } from "./SmartLightHub";
 import StateHandler from "./state/StateHandler";
 import { SunTracker } from "./SunTracker/SunTracker";
 
@@ -34,7 +34,10 @@ export const app = async () => {
     process.exit(0);
   }
 
-  const hub = await createSmartLightHub("ikea-tradfri", TRADFRI_SECURITY_CODE);
+  const hub = await createSmartLightHub(
+    SmartLightHubType.IKEA_TRADFRI,
+    TRADFRI_SECURITY_CODE
+  );
   const light = await hub.getLight(getLightName());
   if (!light) {
     Logger.error("light not found");

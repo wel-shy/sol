@@ -13,6 +13,10 @@ export interface SetLightOptions {
   transitionTime: number;
 }
 
+export enum SmartLightHubType {
+  IKEA_TRADFRI = "IKEA_TRADFRI",
+}
+
 export interface SmartLightHub {
   createConnection: () => Promise<void>;
   destroyConnection: () => void;
@@ -27,7 +31,7 @@ export const createSmartLightHub = async (
 ): Promise<SmartLightHub> => {
   let hub: SmartLightHub | null = null;
   switch (type) {
-    case "ikea-tradfri":
+    case SmartLightHubType.IKEA_TRADFRI:
       hub = new IkeaTradfriHub(code);
       break;
   }
