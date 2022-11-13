@@ -10,7 +10,7 @@ export interface ApplicationState {
 export default class StateHandler {
   DEFAULT_STATE = {
     solarPeriod: SolarPeriod.NIGHT,
-    isFading: false
+    isFading: false,
   };
 
   constructor(private path: string, private logger: Logger) {}

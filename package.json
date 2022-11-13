@@ -11,7 +11,11 @@
   },
   "author": "",
   "license": "ISC",
-  "prettier": {},
+  "prettier": {
+    "trailingComma": "es5",
+    "semi": true,
+    "tabWidth": 2
+  },
   "dependencies": {
     "dotenv": "^16.0.3",
     "node-tradfri-client": "^3.1.1",

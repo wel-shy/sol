@@ -19,40 +19,40 @@ export const getSunPositionTimeMap = (
     goldenHourEnd: sunriseEnd,
     goldenHour,
     solarNoon,
-    nauticalDusk
+    nauticalDusk,
   } = getTimes(date, latitude, longitude);
 
   return [
     {
       start: dawn,
       end: sunrise,
-      id: SolarPeriod.BLUE_HOUR_DAWN
+      id: SolarPeriod.BLUE_HOUR_DAWN,
     },
     {
       start: sunrise,
       end: sunriseEnd,
-      id: SolarPeriod.SUNRISE
+      id: SolarPeriod.SUNRISE,
     },
     {
       start: sunriseEnd,
       end: solarNoon,
-      id: SolarPeriod.MORNING
+      id: SolarPeriod.MORNING,
     },
     {
       start: solarNoon,
       end: goldenHour,
-      id: SolarPeriod.AFTERNOON
+      id: SolarPeriod.AFTERNOON,
     },
     {
       start: goldenHour,
       end: sunset,
-      id: SolarPeriod.SUNSET
+      id: SolarPeriod.SUNSET,
     },
     {
       start: sunset,
       end: nauticalDusk,
-      id: SolarPeriod.BLUE_HOUR
-    }
+      id: SolarPeriod.BLUE_HOUR,
+    },
   ];
 };
 

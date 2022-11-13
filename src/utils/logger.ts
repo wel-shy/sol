@@ -5,9 +5,9 @@ export const getLogger = (): Logger =>
     level: process.env.LOG_LEVEL || "info",
     format: format.combine(
       format.timestamp({
-        format: "YYYY-MM-DD HH:mm:ss"
+        format: "YYYY-MM-DD HH:mm:ss",
       }),
       format.simple()
     ),
-    transports: [new transports.Console()]
+    transports: [new transports.Console()],
   });

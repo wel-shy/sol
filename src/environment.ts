@@ -10,7 +10,7 @@ export const getEnvironmentVariables = () => {
     HUB_CODE,
     LAT,
     LON,
-    STATE_PATH
+    STATE_PATH,
   };
 };
 
@@ -23,6 +23,6 @@ export const getProcessArgs = () => {
 
   return {
     lightName,
-    dryRun: dryRun === "dry-run"
+    dryRun: dryRun === "dry-run",
   };
 };

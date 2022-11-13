@@ -33,7 +33,7 @@ export const fadeLight = async (
     await hub.setLight(light, {
       on: true,
       rgb: [r, g, b],
-      transitionTime: delay
+      transitionTime: delay,
     });
 
     currentRgb = [r, g, b];

@@ -63,7 +63,7 @@ export class IkeaTradfriHub implements SmartLightHub {
     await this.client?.operateLight((light as unknown) as Accessory, {
       onOff: on,
       color: rgbToHex(r, g, b),
-      transitionTime
+      transitionTime,
     });
   }
 }
