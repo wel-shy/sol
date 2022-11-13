@@ -7,6 +7,7 @@ import {
 } from "./gateway/client";
 import { getDeviceByName, getDevices } from "./gateway/devices";
 import { fadeLight } from "./gateway/lights";
+import StateHandler from "./state/StateHandler";
 import {
   getSolarPeriod,
   getSunPositionTimeMap,
@@ -53,10 +54,13 @@ export const app = async () => {
 
   const lightName = getLightName();
 
-  let isFading = false;
-  let previousSolarPeriod: SolarPeriod | null = null;
+  const stateHandler = new StateHandler(
+    process.env.STATE_PATH || "./error.json"
+  );
 
-  // TODO: Establish connection to gateway within interval callback
+  const { isFading, solarPeriod: previousSolarPeriod } =
+    await stateHandler.getApplicationState();
+
   const result = await getGateway();
   if (!result) {
     throw new Error("No gateway found");
@@ -67,35 +71,38 @@ export const app = async () => {
 
   const devices = await getDevices(client);
 
-  const interval = setInterval(async () => {
-    const timeStamps = getSunPositionTimeMap(
-      new Date(),
-      parseFloat(LAT),
-      parseFloat(LON)
-    );
-    const solarPeriod = getSolarPeriod(new Date(), timeStamps);
-    const light = getDeviceByName(lightName, devices);
+  const timeStamps = getSunPositionTimeMap(
+    new Date(),
+    parseFloat(LAT),
+    parseFloat(LON)
+  );
+  const solarPeriod = getSolarPeriod(new Date(), timeStamps);
+  const light = getDeviceByName(lightName, devices);
 
-    if (
-      !canStartTransition(solarPeriod, previousSolarPeriod, isFading, light)
-    ) {
-      return;
+  if (!canStartTransition(solarPeriod, previousSolarPeriod, isFading, light)) {
+    return;
+  }
+
+  await stateHandler.storeApplicationState({
+    solarPeriod,
+    isFading: true,
+  });
+
+  // TODO: Transition over a time period of 15 minutes
+  await fadeLight(
+    client,
+    light!,
+    SolarRgbMap[previousSolarPeriod || SolarPeriod.SUNSET],
+    SolarRgbMap[solarPeriod],
+    {
+      transitions: 10,
     }
+  );
 
-    // TODO: Transition over a time period of 15 minutes
-    await fadeLight(
-      client,
-      light!,
-      SolarRgbMap[previousSolarPeriod || SolarPeriod.SUNSET],
-      SolarRgbMap[solarPeriod],
-      {
-        transitions: 10,
-        setisFading: (fading) => (isFading = fading),
-      }
-    );
-
-    previousSolarPeriod = solarPeriod;
-  }, POLLING_INTERVAL);
+  await stateHandler.storeApplicationState({
+    solarPeriod,
+    isFading: false,
+  });
 
   client.destroy();
 };
