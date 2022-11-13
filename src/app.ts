@@ -1,5 +1,4 @@
 import * as dotenv from "dotenv";
-import { Accessory } from "node-tradfri-client";
 import {
   authenticateToGateway,
   createClient,
@@ -7,6 +6,7 @@ import {
 } from "./gateway/client";
 import { getDeviceByName, getDevices } from "./gateway/devices";
 import { fadeLight } from "./gateway/lights";
+import { getLogger } from "./logger";
 import StateHandler from "./state/StateHandler";
 import {
   getSolarPeriod,
@@ -16,8 +16,6 @@ import {
 } from "./sun";
 
 dotenv.config();
-
-const POLLING_INTERVAL = 1000 * 60 * 1;
 
 const getLightName = (): string => {
   const [, , lightName] = process.argv;
@@ -31,45 +29,53 @@ const getLightName = (): string => {
 const canStartTransition = (
   currentPeriod: SolarPeriod,
   previousSolarPeriod: SolarPeriod | null,
-  isFading: boolean,
-  light: Accessory | undefined
+  isFading: boolean
 ): boolean => {
   if (previousSolarPeriod === currentPeriod || isFading) {
-    return false;
-  }
-
-  if (!light) {
-    console.log("light not found");
     return false;
   }
 
   return true;
 };
 
+const isDryRun = (): boolean => {
+  const [, , , dryRun] = process.argv;
+  return dryRun === "dry-run";
+};
+
 export const app = async () => {
-  const { LAT, LON, TRADFRI_SECURITY_CODE } = process.env;
-  if (!LAT || !LON || !TRADFRI_SECURITY_CODE) {
+  const { LAT, LON, TRADFRI_SECURITY_CODE, STATE_PATH } = process.env;
+  if (!LAT || !LON || !TRADFRI_SECURITY_CODE || !STATE_PATH) {
     throw new Error("Missing environment variables");
   }
 
+  const Logger = getLogger();
   const lightName = getLightName();
 
-  const stateHandler = new StateHandler(
-    process.env.STATE_PATH || "./error.json"
-  );
-
+  const stateHandler = new StateHandler(STATE_PATH, Logger);
   const { isFading, solarPeriod: previousSolarPeriod } =
     await stateHandler.getApplicationState();
 
+  if (isDryRun()) {
+    Logger.info("Dry run, exiting");
+    process.exit(0);
+  }
+
   const result = await getGateway();
   if (!result) {
-    throw new Error("No gateway found");
+    Logger.error("No gateway found");
+    process.exit(1);
   }
 
   const client = await createClient(result);
   await authenticateToGateway(client, TRADFRI_SECURITY_CODE);
-
   const devices = await getDevices(client);
+  const light = getDeviceByName(lightName, devices);
+
+  if (!light) {
+    Logger.error("light not found");
+    process.exit(1);
+  }
 
   const timeStamps = getSunPositionTimeMap(
     new Date(),
@@ -77,10 +83,11 @@ export const app = async () => {
     parseFloat(LON)
   );
   const solarPeriod = getSolarPeriod(new Date(), timeStamps);
-  const light = getDeviceByName(lightName, devices);
 
-  if (!canStartTransition(solarPeriod, previousSolarPeriod, isFading, light)) {
-    return;
+  if (!canStartTransition(solarPeriod, previousSolarPeriod, isFading)) {
+    Logger.info("Current period is the same as previous period, exiting");
+    client.destroy();
+    process.exit(0);
   }
 
   await stateHandler.storeApplicationState({
@@ -92,8 +99,9 @@ export const app = async () => {
   await fadeLight(
     client,
     light!,
-    SolarRgbMap[previousSolarPeriod || SolarPeriod.SUNSET],
+    SolarRgbMap[previousSolarPeriod],
     SolarRgbMap[solarPeriod],
+    Logger,
     {
       transitions: 10,
     }

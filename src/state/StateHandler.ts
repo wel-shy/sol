@@ -1,5 +1,6 @@
 import { SolarPeriod } from "../sun";
 import { readState, writeState } from "./file";
+import { Logger } from "winston";
 
 interface ApplicationState {
   solarPeriod: SolarPeriod;
@@ -12,16 +13,20 @@ export default class StateHandler {
     isFading: false,
   };
 
-  constructor(private path: string) {}
+  constructor(private path: string, private logger: Logger) {}
 
   async getApplicationState(): Promise<ApplicationState> {
     try {
       const state = await readState<ApplicationState>(this.path);
       if (!state) {
+        this.logger.warn("No state found, using default state");
         return this.DEFAULT_STATE;
       }
+
+      this.logger.info("State found, using state", { state });
+      return state;
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
     }
 
     return this.DEFAULT_STATE;

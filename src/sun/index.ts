@@ -75,7 +75,7 @@ export const getSunPositionTimeMap = (
 };
 
 const isDateInPeriod = (date: Date, { start, end }: TimePeriod): boolean => {
-  return date.getTime() < start.getTime() && date.getTime() >= end.getTime();
+  return date.getTime() > start.getTime() && date.getTime() <= end.getTime();
 };
 
 export const getSolarPeriod = (
