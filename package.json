@@ -16,6 +16,17 @@
     "semi": true,
     "tabWidth": 2
   },
+  "lint-staged": {
+    "**/*.{ts,json}": [
+      "eslint . --fix",
+      "prettier --write ."
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
   "dependencies": {
     "dotenv": "^16.0.3",
     "node-tradfri-client": "^3.1.1",
@@ -25,6 +36,11 @@
   "devDependencies": {
     "@types/node": "^18.11.9",
     "@types/suncalc": "^1.8.1",
+    "@typescript-eslint/eslint-plugin": "^5.42.1",
+    "@typescript-eslint/parser": "^5.42.1",
+    "eslint": "^8.27.0",
+    "husky": "^8.0.2",
+    "lint-staged": "^13.0.3",
     "typescript": "^4.8.4"
   }
 }
