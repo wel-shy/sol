@@ -1,4 +1,5 @@
 import * as dotenv from "dotenv";
+import { Accessory } from "node-tradfri-client";
 import {
   authenticateToGateway,
   createClient,
@@ -7,14 +8,42 @@ import {
 import { getDeviceByName, getDevices } from "./gateway/devices";
 import { fadeLight } from "./gateway/lights";
 import {
-  getNextSolarPeriod,
   getSolarPeriod,
   getSunPositionTimeMap,
+  SolarPeriod,
   SolarRgbMap,
 } from "./sun";
-import { sleep } from "./utils/process";
 
 dotenv.config();
+
+const POLLING_INTERVAL = 1000 * 60 * 1;
+
+const getLightName = (): string => {
+  const [, , lightName] = process.argv;
+  if (!lightName) {
+    throw new Error("Please provide a light name");
+  }
+
+  return lightName;
+};
+
+const canStartTransition = (
+  currentPeriod: SolarPeriod,
+  previousSolarPeriod: SolarPeriod | null,
+  isFading: boolean,
+  light: Accessory | undefined
+): boolean => {
+  if (previousSolarPeriod === currentPeriod || isFading) {
+    return false;
+  }
+
+  if (!light) {
+    console.log("light not found");
+    return false;
+  }
+
+  return true;
+};
 
 export const app = async () => {
   const { LAT, LON, TRADFRI_SECURITY_CODE } = process.env;
@@ -22,14 +51,12 @@ export const app = async () => {
     throw new Error("Missing environment variables");
   }
 
+  const lightName = getLightName();
+
   let isFading = false;
-  let previousSolarPeriod = null;
+  let previousSolarPeriod: SolarPeriod | null = null;
 
-  const [, , lightName] = process.argv;
-  if (!lightName) {
-    throw new Error("Please provide a light name");
-  }
-
+  // TODO: Establish connection to gateway within interval callback
   const result = await getGateway();
   if (!result) {
     throw new Error("No gateway found");
@@ -40,33 +67,27 @@ export const app = async () => {
 
   const devices = await getDevices(client);
 
-  while (true) {
+  const interval = setInterval(async () => {
     const timeStamps = getSunPositionTimeMap(
       new Date(),
       parseFloat(LAT),
       parseFloat(LON)
     );
     const solarPeriod = getSolarPeriod(new Date(), timeStamps);
-    const nextSolarPeriod = getNextSolarPeriod(solarPeriod, timeStamps);
-    if (previousSolarPeriod === solarPeriod) {
-      continue;
-    }
-
-    if (isFading) {
-      continue;
-    }
-
     const light = getDeviceByName(lightName, devices);
-    if (!light) {
-      console.log("light not found");
-      continue;
+
+    if (
+      !canStartTransition(solarPeriod, previousSolarPeriod, isFading, light)
+    ) {
+      return;
     }
 
+    // TODO: Transition over a time period of 15 minutes
     await fadeLight(
       client,
-      light,
+      light!,
+      SolarRgbMap[previousSolarPeriod || SolarPeriod.SUNSET],
       SolarRgbMap[solarPeriod],
-      SolarRgbMap[nextSolarPeriod],
       {
         transitions: 10,
         setisFading: (fading) => (isFading = fading),
@@ -74,8 +95,7 @@ export const app = async () => {
     );
 
     previousSolarPeriod = solarPeriod;
+  }, POLLING_INTERVAL);
 
-    await sleep(1000 * 60 * 1);
-  }
   client.destroy();
 };
