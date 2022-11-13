@@ -2,7 +2,12 @@ import { createLogger, transports, format, Logger } from "winston";
 
 export const getLogger = (): Logger =>
   createLogger({
-    level: "verbose",
-    format: format.json(),
-    transports: [new transports.Console({ format: format.simple() })],
+    level: process.env.LOG_LEVEL || "info",
+    format: format.combine(
+      format.timestamp({
+        format: "YYYY-MM-DD HH:mm:ss",
+      }),
+      format.simple()
+    ),
+    transports: [new transports.Console()],
   });
