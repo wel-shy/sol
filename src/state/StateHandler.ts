@@ -1,8 +1,8 @@
-import { SolarPeriod } from "../sun";
 import { readState, writeState } from "./file";
 import { Logger } from "winston";
+import { SolarPeriod } from "../SunTracker/SunTracker";
 
-interface ApplicationState {
+export interface ApplicationState {
   solarPeriod: SolarPeriod;
   isFading: boolean;
 }

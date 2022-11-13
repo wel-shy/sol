@@ -1,28 +1,10 @@
 import { getTimes } from "suncalc";
-
-export enum SolarPeriod {
-  SUNRISE = "sunrise",
-  MORNING = "morning",
-  AFTERNOON = "afternoon",
-  SUNSET = "sunset",
-  NIGHT = "night",
-  BLUE_HOUR = "blueHour",
-  BLUE_HOUR_DAWN = "blueHourDawn",
-}
+import { SolarPeriod } from "./SunTracker";
 
 interface TimePeriod {
   start: Date;
   end: Date;
   id: SolarPeriod;
-}
-
-interface SolarTimesStamps {
-  morningBlueHour: TimePeriod;
-  sunrise: TimePeriod;
-  morning: TimePeriod;
-  afternoon: TimePeriod;
-  sunset: TimePeriod;
-  eveningBlueHour: TimePeriod;
 }
 
 export const getSunPositionTimeMap = (

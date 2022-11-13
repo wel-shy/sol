@@ -1,4 +1,4 @@
-import { incrementInSteps } from "../../utils/math";
+import { incrementInSteps } from "../utils/math";
 
 const MAX_RGB_VALUE = 255;
 const MIN_RGB_VALUE = 0;
