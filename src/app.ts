@@ -3,42 +3,27 @@ import { getLogger } from "./utils/logger";
 import { createSmartLightHub, SmartLightHubType } from "./SmartLightHub";
 import StateHandler from "./state/StateHandler";
 import { SunTracker } from "./SunTracker/SunTracker";
+import { getEnvironmentVariables, getProcessArgs } from "./environment";
 
 dotenv.config();
 
-const getLightName = (): string => {
-  const [, , lightName] = process.argv;
-  if (!lightName) {
-    throw new Error("Please provide a light name");
-  }
-
-  return lightName;
-};
-
-const isDryRun = (): boolean => {
-  const [, , , dryRun] = process.argv;
-  return dryRun === "dry-run";
-};
-
 export const app = async () => {
-  const { LAT, LON, TRADFRI_SECURITY_CODE, STATE_PATH } = process.env;
-  if (!LAT || !LON || !TRADFRI_SECURITY_CODE || !STATE_PATH) {
-    throw new Error("Missing environment variables");
-  }
+  const { LAT, LON, HUB_CODE, STATE_PATH } = getEnvironmentVariables();
+  const { lightName, dryRun } = getProcessArgs();
 
   const Logger = getLogger();
   const stateHandler = new StateHandler(STATE_PATH, Logger);
 
-  if (isDryRun()) {
+  if (dryRun) {
     Logger.info("Dry run, exiting");
     process.exit(0);
   }
 
   const hub = await createSmartLightHub(
     SmartLightHubType.IKEA_TRADFRI,
-    TRADFRI_SECURITY_CODE
+    HUB_CODE
   );
-  const light = await hub.getLight(getLightName());
+  const light = await hub.getLight(lightName);
   if (!light) {
     Logger.error("light not found");
     process.exit(1);
