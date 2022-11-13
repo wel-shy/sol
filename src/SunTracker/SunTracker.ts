@@ -11,7 +11,7 @@ export enum SolarPeriod {
   SUNSET = "sunset",
   NIGHT = "night",
   BLUE_HOUR = "blueHour",
-  BLUE_HOUR_DAWN = "blueHourDawn",
+  BLUE_HOUR_DAWN = "blueHourDawn"
 }
 
 const BLUE_HOUR_RGB = [50, 0, 183];
@@ -22,7 +22,7 @@ const SolarRgbMap: Record<SolarPeriod, number[]> = {
   [SolarPeriod.MORNING]: [242, 228, 223],
   [SolarPeriod.AFTERNOON]: [255, 224, 178],
   [SolarPeriod.SUNSET]: [251, 140, 0],
-  [SolarPeriod.NIGHT]: [155, 0, 155],
+  [SolarPeriod.NIGHT]: [155, 0, 155]
 };
 
 export class SunTracker {
@@ -57,7 +57,7 @@ export class SunTracker {
 
     await this.stateHandler.storeApplicationState({
       solarPeriod,
-      isFading: true,
+      isFading: true
     });
 
     // TODO: Transition over a time period of 15 minutes
@@ -68,13 +68,13 @@ export class SunTracker {
       SolarRgbMap[solarPeriod],
       this.logger,
       {
-        transitions: 10,
+        transitions: 10
       }
     );
 
     await this.stateHandler.storeApplicationState({
       solarPeriod,
-      isFading: false,
+      isFading: false
     });
   }
 

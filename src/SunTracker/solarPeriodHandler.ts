@@ -19,40 +19,40 @@ export const getSunPositionTimeMap = (
     goldenHourEnd: sunriseEnd,
     goldenHour,
     solarNoon,
-    nauticalDusk,
+    nauticalDusk
   } = getTimes(date, latitude, longitude);
 
   return [
     {
       start: dawn,
       end: sunrise,
-      id: SolarPeriod.BLUE_HOUR_DAWN,
+      id: SolarPeriod.BLUE_HOUR_DAWN
     },
     {
       start: sunrise,
       end: sunriseEnd,
-      id: SolarPeriod.SUNRISE,
+      id: SolarPeriod.SUNRISE
     },
     {
       start: sunriseEnd,
       end: solarNoon,
-      id: SolarPeriod.MORNING,
+      id: SolarPeriod.MORNING
     },
     {
       start: solarNoon,
       end: goldenHour,
-      id: SolarPeriod.AFTERNOON,
+      id: SolarPeriod.AFTERNOON
     },
     {
       start: goldenHour,
       end: sunset,
-      id: SolarPeriod.SUNSET,
+      id: SolarPeriod.SUNSET
     },
     {
       start: sunset,
       end: nauticalDusk,
-      id: SolarPeriod.BLUE_HOUR,
-    },
+      id: SolarPeriod.BLUE_HOUR
+    }
   ];
 };
 
@@ -64,7 +64,7 @@ export const getSolarPeriod = (
   date: Date,
   solarPeriods: TimePeriod[]
 ): SolarPeriod => {
-  const period = solarPeriods.find((period) => isDateInPeriod(date, period));
+  const period = solarPeriods.find(period => isDateInPeriod(date, period));
   return period ? period.id : SolarPeriod.NIGHT;
 };
 
@@ -80,6 +80,6 @@ export const getNextSolarPeriod = (
     return SolarPeriod.NIGHT;
   }
 
-  const idx = solarPeriods.findIndex((period) => period.id === currentPeriod);
+  const idx = solarPeriods.findIndex(period => period.id === currentPeriod);
   return solarPeriods[idx + 1].id;
 };

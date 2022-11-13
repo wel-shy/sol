@@ -14,7 +14,7 @@ export interface SetLightOptions {
 }
 
 export enum SmartLightHubType {
-  IKEA_TRADFRI = "IKEA_TRADFRI",
+  IKEA_TRADFRI = "IKEA_TRADFRI"
 }
 
 export interface SmartLightHub {

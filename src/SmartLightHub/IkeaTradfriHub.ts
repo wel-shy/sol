@@ -43,13 +43,13 @@ export class IkeaTradfriHub implements SmartLightHub {
     this.devices = [];
     await this.client?.observeDevices();
 
-    return this.devices as unknown as Light[];
+    return (this.devices as unknown) as Light[];
   }
 
   async getLight(id: string): Promise<Light | null> {
     await this.getLights();
     return (
-      (this.devices.find((device) => device.name === id) as unknown as Light) ||
+      ((this.devices.find(device => device.name === id) as unknown) as Light) ||
       null
     );
   }
@@ -60,10 +60,10 @@ export class IkeaTradfriHub implements SmartLightHub {
   ): Promise<void> {
     const [r, g, b] = rgb;
 
-    await this.client?.operateLight(light as unknown as Accessory, {
+    await this.client?.operateLight((light as unknown) as Accessory, {
       onOff: on,
       color: rgbToHex(r, g, b),
-      transitionTime,
+      transitionTime
     });
   }
 }
