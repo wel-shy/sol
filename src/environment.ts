@@ -14,8 +14,8 @@ export const getEnvironmentVariables = () => {
   };
 };
 
-export const getProcessArgs = () => {
-  const [, , lightName, dryRun] = process.argv;
+export const getProcessArguments = () => {
+  const [lightName, dryRun] = process.argv.slice(2);
 
   if (!lightName) {
     throw new Error("Please provide a light name");

@@ -8,7 +8,8 @@
     "start": "node build/index.js",
     "build": "npx tsc",
     "format": "prettier --write \"src/**/*.ts\"",
-    "precommit": "pretty-quick --staged",
+    "lint": "eslint \"src/**/*.ts\"",
+    "precommit": "npm run lint && pretty-quick --staged",
     "prepare": "husky install .husky"
   },
   "author": "",

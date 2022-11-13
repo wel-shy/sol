@@ -35,8 +35,8 @@ export class SunTracker {
   getCurrentSolarPeriod(lat: string, lon: string): SolarPeriod {
     const timeStamps = getSunPositionTimeMap(
       new Date(),
-      parseFloat(lat),
-      parseFloat(lon)
+      Number.parseFloat(lat),
+      Number.parseFloat(lon)
     );
     return getSolarPeriod(new Date(), timeStamps);
   }
@@ -52,7 +52,7 @@ export class SunTracker {
         "Current period is the same as previous period, exiting"
       );
       this.hub.destroyConnection();
-      process.exit(0);
+      return;
     }
 
     await this.stateHandler.storeApplicationState({

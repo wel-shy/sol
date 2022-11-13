@@ -3,7 +3,7 @@ import { SmartLightHub, Light, SetLightOptions } from ".";
 import { rgbToHex } from "../LightHandler/rgb";
 
 export class IkeaTradfriHub implements SmartLightHub {
-  client: TradfriClient | null = null;
+  client: TradfriClient | undefined;
   devices: Accessory[] = [];
 
   constructor(private code: string) {}
@@ -43,15 +43,14 @@ export class IkeaTradfriHub implements SmartLightHub {
     this.devices = [];
     await this.client?.observeDevices();
 
-    return (this.devices as unknown) as Light[];
+    return this.devices as unknown as Light[];
   }
 
-  async getLight(id: string): Promise<Light | null> {
+  async getLight(id: string): Promise<Light | undefined> {
     await this.getLights();
-    return (
-      ((this.devices.find(device => device.name === id) as unknown) as Light) ||
-      null
-    );
+    return this.devices.find(
+      (device) => device.name === id
+    ) as unknown as Light;
   }
 
   async setLight(
@@ -60,7 +59,7 @@ export class IkeaTradfriHub implements SmartLightHub {
   ): Promise<void> {
     const [r, g, b] = rgb;
 
-    await this.client?.operateLight((light as unknown) as Accessory, {
+    await this.client?.operateLight(light as unknown as Accessory, {
       onOff: on,
       color: rgbToHex(r, g, b),
       transitionTime,

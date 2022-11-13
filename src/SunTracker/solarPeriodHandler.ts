@@ -64,7 +64,7 @@ export const getSolarPeriod = (
   date: Date,
   solarPeriods: TimePeriod[]
 ): SolarPeriod => {
-  const period = solarPeriods.find(period => isDateInPeriod(date, period));
+  const period = solarPeriods.find((period) => isDateInPeriod(date, period));
   return period ? period.id : SolarPeriod.NIGHT;
 };
 
@@ -80,6 +80,6 @@ export const getNextSolarPeriod = (
     return SolarPeriod.NIGHT;
   }
 
-  const idx = solarPeriods.findIndex(period => period.id === currentPeriod);
-  return solarPeriods[idx + 1].id;
+  const index = solarPeriods.findIndex((period) => period.id === currentPeriod);
+  return solarPeriods[index + 1].id;
 };

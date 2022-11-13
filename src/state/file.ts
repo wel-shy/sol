@@ -1,4 +1,4 @@
-import { readFile, writeFile, stat } from "fs/promises";
+import { readFile, writeFile, stat } from "node:fs/promises";
 
 const ENCODING = "utf8";
 
@@ -19,9 +19,9 @@ const exists = async (path: string): Promise<boolean> => {
   }
 };
 
-export const readState = async <T>(path: string): Promise<T | null> => {
+export const readState = async <T>(path: string): Promise<T | undefined> => {
   if (!exists(path)) {
-    return null;
+    return undefined;
   }
 
   const state = await readFile(path, ENCODING);

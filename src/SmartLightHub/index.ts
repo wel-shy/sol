@@ -21,7 +21,7 @@ export interface SmartLightHub {
   createConnection: () => Promise<void>;
   destroyConnection: () => void;
   getLights: () => Promise<Light[]>;
-  getLight: (id: string) => Promise<Light | null>;
+  getLight: (id: string) => Promise<Light | undefined>;
   setLight: (light: Light, options: SetLightOptions) => Promise<void>;
 }
 
@@ -29,11 +29,12 @@ export const createSmartLightHub = async (
   type: string,
   code: string
 ): Promise<SmartLightHub> => {
-  let hub: SmartLightHub | null = null;
+  let hub: SmartLightHub | undefined;
   switch (type) {
-    case SmartLightHubType.IKEA_TRADFRI:
+    case SmartLightHubType.IKEA_TRADFRI: {
       hub = new IkeaTradfriHub(code);
       break;
+    }
   }
 
   if (!hub) {
