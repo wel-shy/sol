@@ -17,7 +17,7 @@
     "tabWidth": 2
   },
   "lint-staged": {
-    "**/*.{ts,json}": [
+    "src/**/*.{ts,json}": [
       "eslint . --fix",
       "prettier --write ."
     ]

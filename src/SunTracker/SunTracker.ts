@@ -60,7 +60,6 @@ export class SunTracker {
       isFading: true,
     });
 
-    // TODO: Transition over a time period of 15 minutes
     await fadeLight(
       this.hub,
       light,
