@@ -2,11 +2,7 @@ import { Logger } from "winston";
 import { fadeLight } from "../LightHandler/LightHandler";
 import { Light, SmartLightHub } from "../SmartLightHub";
 import StateHandler, { ApplicationState } from "../state/StateHandler";
-import {
-  getSolarPeriod,
-  getSunPositionTimeMap,
-  SolarRgbMap,
-} from "./solarPeriodHandler";
+import { getSolarPeriod, getSunPositionTimeMap } from "./solarPeriodHandler";
 
 export enum SolarPeriod {
   SUNRISE = "sunrise",
@@ -17,6 +13,17 @@ export enum SolarPeriod {
   BLUE_HOUR = "blueHour",
   BLUE_HOUR_DAWN = "blueHourDawn",
 }
+
+const BLUE_HOUR_RGB = [50, 0, 183];
+const SolarRgbMap: Record<SolarPeriod, number[]> = {
+  [SolarPeriod.BLUE_HOUR]: BLUE_HOUR_RGB,
+  [SolarPeriod.BLUE_HOUR_DAWN]: BLUE_HOUR_RGB,
+  [SolarPeriod.SUNRISE]: [255, 138, 101],
+  [SolarPeriod.MORNING]: [242, 228, 223],
+  [SolarPeriod.AFTERNOON]: [255, 224, 178],
+  [SolarPeriod.SUNSET]: [251, 140, 0],
+  [SolarPeriod.NIGHT]: [155, 0, 155],
+};
 
 export class SunTracker {
   constructor(

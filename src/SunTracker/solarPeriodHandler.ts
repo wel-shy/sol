@@ -83,15 +83,3 @@ export const getNextSolarPeriod = (
   const idx = solarPeriods.findIndex((period) => period.id === currentPeriod);
   return solarPeriods[idx + 1].id;
 };
-
-const BLUE_HOUR_RGB = [50, 0, 183];
-
-export const SolarRgbMap: Record<SolarPeriod, number[]> = {
-  [SolarPeriod.BLUE_HOUR]: BLUE_HOUR_RGB,
-  [SolarPeriod.BLUE_HOUR_DAWN]: BLUE_HOUR_RGB,
-  [SolarPeriod.SUNRISE]: [255, 138, 101],
-  [SolarPeriod.MORNING]: [242, 228, 223],
-  [SolarPeriod.AFTERNOON]: [255, 224, 178],
-  [SolarPeriod.SUNSET]: [251, 140, 0],
-  [SolarPeriod.NIGHT]: [155, 0, 155],
-};

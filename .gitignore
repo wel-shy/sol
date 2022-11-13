@@ -3,3 +3,4 @@ build/
 .env
 state.json
 .vscode/
+*.log
